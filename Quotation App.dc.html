@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;background:#e9e9e6;font-family:Manrope,system-ui,sans-serif;color:#1a1a18;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+input,button,select{font-family:inherit;font-size:inherit;color:inherit}
+input:focus{outline:2px solid oklch(0.55 0.15 150);outline-offset:0;border-color:transparent}
+button{cursor:pointer}
+a{color:oklch(0.45 0.13 150)}a:hover{color:oklch(0.35 0.12 150)}
+</style>
+</helmet>
+<div style="width:100%;min-height:100vh;background:#f6f6f4;display:flex;flex-direction:column;position:relative;font-variant-numeric:tabular-nums lining-nums">
+
+<!-- QUOTES LIST -->
+<sc-if value="{{ isQuotes }}" hint-placeholder-val="{{ true }}">
+<div data-screen-label="Quotes" style="width:100%;max-width:760px;margin:0 auto;display:flex;flex-direction:column;flex:1;padding-bottom:88px">
+  <div style="padding:20px 20px 12px;display:flex;align-items:flex-end;justify-content:space-between">
+    <div>
+      <div style="font-size:13px;color:#6b6b66">Rinse & Restore Exterior Cleaning</div>
+      <h1 style="margin:2px 0 0;font-family:Outfit,sans-serif;font-weight:600;font-size:26px;letter-spacing:-0.01em">Quotes</h1>
+    </div>
+    <button onClick="{{ startNew }}" style="display:flex;align-items:center;gap:6px;height:44px;padding:0 16px;border:0;border-radius:12px;background:oklch(0.55 0.15 150);color:#fff;font-weight:700;font-size:15px">
+      <span style="font-size:22px;line-height:1;margin-top:-2px">+</span> New quote
+    </button>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:4px 20px 16px">
+    <div style="background:#fff;border:1px solid #e4e4e0;border-radius:12px;padding:12px">
+      <div style="font-size:12px;color:#6b6b66">Sent this month</div>
+      <div style="font-size:20px;font-weight:700;margin-top:2px">{{ statSent }}</div>
+    </div>
+    <div style="background:#fff;border:1px solid #e4e4e0;border-radius:12px;padding:12px">
+      <div style="font-size:12px;color:#6b6b66">Accepted</div>
+      <div style="font-size:20px;font-weight:700;margin-top:2px;color:oklch(0.45 0.13 150)">{{ statAccepted }}</div>
+    </div>
+    <div style="background:#fff;border:1px solid #e4e4e0;border-radius:12px;padding:12px">
+      <div style="font-size:12px;color:#6b6b66">Pipeline</div>
+      <div style="font-size:20px;font-weight:700;margin-top:2px">{{ statPipeline }}</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:6px;padding:0 20px 12px;overflow-x:auto">
+    <sc-for list="{{ filters }}" as="f" hint-placeholder-count="4">
+      <button onClick="{{ f.onClick }}" style="height:36px;padding:0 14px;border-radius:999px;border:1px solid {{ f.border }};background:{{ f.bg }};color:{{ f.color }};font-size:14px;font-weight:700;white-space:nowrap">{{ f.label }}</button>
+    </sc-for>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:8px;padding:0 20px">
+    <sc-for list="{{ visibleQuotes }}" as="q" hint-placeholder-count="4">
+      <div style="background:#fff;border:1px solid #e4e4e0;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+          <div style="min-width:0">
+            <div style="font-weight:700;font-size:16px">{{ q.customer }}</div>
+            <div style="font-size:13px;color:#6b6b66;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ q.address }}</div>
+          </div>
+          <span style="flex-shrink:0;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:{{ q.pillBg }};color:{{ q.pillColor }}">{{ q.status }}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline">
+          <div style="font-size:13px;color:#6b6b66">{{ q.number }} · {{ q.services }}</div>
+          <div style="font-size:17px;font-weight:700">{{ q.total }}</div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<!-- SETTINGS -->
+<sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Pricing settings" style="width:100%;max-width:760px;margin:0 auto;display:flex;flex-direction:column;flex:1;padding-bottom:88px">
+  <div style="padding:20px 20px 8px">
+    <div style="font-size:13px;color:#6b6b66">Applied to every new quote</div>
+    <h1 style="margin:2px 0 0;font-family:Outfit,sans-serif;font-weight:600;font-size:26px;letter-spacing:-0.01em">Pricing rules</h1>
+  </div>
+  <sc-for list="{{ rateGroups }}" as="g" hint-placeholder-count="3">
+    <div style="padding:12px 20px 0">
+      <div style="font-size:12px;font-weight:700;color:#6b6b66;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px">{{ g.title }}</div>
+      <div style="background:#fff;border:1px solid #e4e4e0;border-radius:14px;overflow:hidden">
+        <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid #eeeeea;min-height:56px">
+            <div style="font-size:15px">{{ r.label }}</div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="color:#6b6b66;font-size:14px">{{ r.prefix }}</span>
+              <input type="number" inputMode="decimal" value="{{ r.value }}" onChange="{{ r.onChange }}" style="width:76px;height:40px;border:1px solid #d8d8d3;border-radius:10px;padding:0 10px;font-size:15px;font-weight:700;text-align:right;background:#fafaf8">
+              <span style="color:#6b6b66;font-size:14px;min-width:28px">{{ r.suffix }}</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-for>
+  <div style="padding:16px 20px 0;font-size:13px;color:#6b6b66;line-height:1.5">Changes apply to new quotes immediately. Sent quotes keep the rates they were priced with.</div>
+</div>
+</sc-if>
+
+<!-- BOTTOM NAV -->
+<sc-if value="{{ showNav }}" hint-placeholder-val="{{ true }}">
+<div style="position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e4e4e0;display:grid;grid-template-columns:1fr 1fr;padding:8px max(16px,calc(50% - 380px)) 18px">
+  <button onClick="{{ goQuotes }}" style="height:48px;border:0;background:transparent;border-radius:12px;font-size:14px;font-weight:700;color:{{ navQuotesColor }}">Quotes</button>
+  <button onClick="{{ goSettings }}" style="height:48px;border:0;background:transparent;border-radius:12px;font-size:14px;font-weight:700;color:{{ navSettingsColor }}">Pricing</button>
+</div>
+</sc-if>
+
+<!-- FLOW HEADER -->
+<sc-if value="{{ inFlow }}" hint-placeholder-val="{{ false }}">
+<div style="position:sticky;top:0;z-index:5;background:#f6f6f4;padding:14px max(20px,calc(50% - 380px)) 10px;display:flex;flex-direction:column;gap:10px">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <button onClick="{{ back }}" style="height:44px;padding:0 12px 0 4px;border:0;background:transparent;font-size:15px;color:#6b6b66;display:flex;align-items:center;gap:4px"><span style="font-size:20px">‹</span> Back</button>
+    <div style="font-size:13px;color:#6b6b66">Step {{ stepNum }} of 5</div>
+    <button onClick="{{ goQuotes }}" style="height:44px;padding:0 4px 0 12px;border:0;background:transparent;font-size:15px;color:#6b6b66">Save draft</button>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px">
+    <sc-for list="{{ steps }}" as="s" hint-placeholder-count="5">
+      <div style="height:4px;border-radius:2px;background:{{ s.bg }}"></div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+
+<!-- STEP 1 CUSTOMER -->
+<sc-if value="{{ isCustomer }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="New quote" style="width:100%;max-width:760px;margin:0 auto;padding:8px 20px 120px;display:flex;flex-direction:column;gap:18px">
+  <h1 style="margin:0;font-family:Outfit,sans-serif;font-weight:600;font-size:24px;letter-spacing:-0.01em">Who is this quote for?</h1>
+  <label style="display:flex;flex-direction:column;gap:6px">
+    <span style="font-size:14px;font-weight:700">Customer name</span>
+    <input value="{{ cust.name }}" onChange="{{ setName }}" placeholder="e.g. Sarah Mitchell" style="height:52px;border:1px solid #d8d8d3;border-radius:12px;padding:0 14px;font-size:16px;background:#fff">
+  </label>
+  <div style="display:grid;grid-template-columns:1fr;gap:18px">
+    <label style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:14px;font-weight:700">Mobile</span>
+      <input type="tel" inputMode="tel" value="{{ cust.mobile }}" onChange="{{ setMobile }}" placeholder="04xx xxx xxx" style="height:52px;border:1px solid #d8d8d3;border-radius:12px;padding:0 14px;font-size:16px;background:#fff">
+    </label>
+    <label style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:14px;font-weight:700">Email</span>
+      <input type="email" inputMode="email" value="{{ cust.email }}" onChange="{{ setEmail }}" placeholder="name@example.com" style="height:52px;border:1px solid #d8d8d3;border-radius:12px;padding:0 14px;font-size:16px;background:#fff">
+    </label>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:6px;position:relative">
+    <span style="font-size:14px;font-weight:700">Property address</span>
+    <input value="{{ cust.address }}" onChange="{{ setAddress }}" placeholder="Start typing an Australian address" style="height:52px;border:1px solid #d8d8d3;border-radius:12px;padding:0 14px;font-size:16px;background:#fff">
+    <sc-if value="{{ showSuggestions }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#fff;border:1px solid #e4e4e0;border-radius:12px;overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,0.08)">
+        <sc-for list="{{ suggestions }}" as="s" hint-placeholder-count="3">
+          <button onClick="{{ s.onClick }}" style="display:block;width:100%;text-align:left;min-height:48px;padding:12px 14px;border:0;border-bottom:1px solid #eeeeea;background:#fff;font-size:15px;line-height:1.3">{{ s.text }}</button>
+        </sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ addressLocated }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:oklch(0.45 0.13 150);margin-top:2px"><span style="width:8px;height:8px;border-radius:50%;background:oklch(0.55 0.15 150)"></span>Property located · {{ cust.lat }}, {{ cust.lng }}</div>
+    </sc-if>
+  </div>
+</div>
+</sc-if>
+
+<!-- STEP 2 MEASURE -->
+<sc-if value="{{ isMeasure }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Measure" style="width:100%;max-width:760px;margin:0 auto;padding:8px 0 120px;display:flex;flex-direction:column;gap:14px">
+  <div style="padding:0 20px">
+    <h1 style="margin:0;font-family:Outfit,sans-serif;font-weight:600;font-size:24px;letter-spacing:-0.01em">Outline the surfaces</h1>
+    <div style="font-size:14px;color:#6b6b66;margin-top:4px">{{ cust.address }}</div>
+  </div>
+  <div style="position:relative;height:min(400px,90vw);border-radius:16px;margin:0 20px;background:#d9dcd6;background-image:repeating-linear-gradient(135deg,rgba(0,0,0,0.05) 0 8px,transparent 8px 16px);overflow:hidden">
+    <svg viewBox="0 0 390 400" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" style="position:absolute;inset:0;display:block">
+      <polygon points="{{ roofPts }}" fill="oklch(0.65 0.18 40 / 0.35)" stroke="oklch(0.6 0.18 40)" stroke-width="{{ roofStroke }}" stroke-linejoin="round"></polygon>
+      <polygon points="{{ drivePts }}" fill="oklch(0.6 0.15 250 / 0.35)" stroke="oklch(0.55 0.15 250)" stroke-width="{{ driveStroke }}" stroke-linejoin="round"></polygon>
+      <sc-for list="{{ handles }}" as="h" hint-placeholder-count="0">
+        <circle cx="{{ h.x }}" cy="{{ h.y }}" r="9" fill="#fff" stroke="{{ h.stroke }}" stroke-width="3"></circle>
+      </sc-for>
+    </svg>
+    <div style="position:absolute;left:12px;top:12px;font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#3a3a36;background:rgba(255,255,255,0.8);padding:4px 8px;border-radius:6px">aerial imagery</div>
+    <div style="position:absolute;right:12px;top:12px;font-size:12px;color:#3a3a36;background:rgba(255,255,255,0.8);padding:4px 8px;border-radius:6px">Imagery Mar 2026</div>
+    <div style="position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;gap:6px">
+      <button style="width:44px;height:44px;border:0;border-radius:10px;background:#fff;font-size:22px;box-shadow:0 2px 8px rgba(0,0,0,0.12)">+</button>
+      <button style="width:44px;height:44px;border:0;border-radius:10px;background:#fff;font-size:22px;box-shadow:0 2px 8px rgba(0,0,0,0.12)">−</button>
+    </div>
+    <div style="position:absolute;left:12px;bottom:12px;display:flex;gap:6px">
+      <button onClick="{{ addVertex }}" style="height:44px;padding:0 14px;border:0;border-radius:10px;background:#1a1a18;color:#fff;font-weight:700;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.12)">Add point</button>
+      <button onClick="{{ undoVertex }}" style="height:44px;padding:0 14px;border:0;border-radius:10px;background:#fff;font-weight:700;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.12)">Undo</button>
+    </div>
+  </div>
+  <div style="display:flex;gap:6px;padding:0 20px">
+    <sc-for list="{{ layers }}" as="l" hint-placeholder-count="3">
+      <button onClick="{{ l.onClick }}" style="flex:1;height:44px;border-radius:12px;border:2px solid {{ l.border }};background:{{ l.bg }};font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px">
+        <span style="width:10px;height:10px;border-radius:3px;background:{{ l.swatch }}"></span>{{ l.label }}
+      </button>
+    </sc-for>
+  </div>
+  <div style="padding:0 20px;display:flex;flex-direction:column;gap:8px">
+    <sc-for list="{{ areaRows }}" as="a" hint-placeholder-count="3">
+      <div style="background:#fff;border:1px solid #e4e4e0;border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:700;font-size:15px">{{ a.label }}</div>
+          <div style="font-size:13px;color:#6b6b66;margin-top:2px">{{ a.note }}</div>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:4px">
+          <input type="number" inputMode="decimal" value="{{ a.value }}" onChange="{{ a.onChange }}" style="width:84px;height:44px;border:1px solid #d8d8d3;border-radius:10px;padding:0 10px;font-size:16px;font-weight:700;text-align:right;background:#fafaf8">
+          <span style="font-size:14px;color:#6b6b66">m²</span>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="padding:0 20px;font-size:13px;color:#6b6b66;line-height:1.5">Areas are horizontal footprints. Roof pitch is applied in the next step. Tap a value to correct it manually.</div>
+</div>
+</sc-if>
+
+<!-- STEP 3 ASSESS -->
+<sc-if value="{{ isAssess }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Assess" style="width:100%;max-width:760px;margin:0 auto;padding:8px 20px 120px;display:flex;flex-direction:column;gap:22px">
+  <h1 style="margin:0;font-family:Outfit,sans-serif;font-weight:600;font-size:24px;letter-spacing:-0.01em">Property conditions</h1>
+  <sc-for list="{{ assessGroups }}" as="g" hint-placeholder-count="5">
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:14px;font-weight:700">{{ g.title }}</span>
+        <span style="font-size:13px;color:#6b6b66">{{ g.hint }}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:{{ g.cols }};gap:8px">
+        <sc-for list="{{ g.options }}" as="o" hint-placeholder-count="3">
+          <button onClick="{{ o.onClick }}" style="min-height:52px;padding:8px 10px;border-radius:12px;border:2px solid {{ o.border }};background:{{ o.bg }};color:#1a1a18;font-size:15px;font-weight:700;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center">
+            <span>{{ o.label }}</span>
+            <span style="font-size:12px;font-weight:400;color:#6b6b66">{{ o.sub }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+  </sc-for>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <span style="font-size:14px;font-weight:700">Extras</span>
+    <sc-for list="{{ extraRows }}" as="e" hint-placeholder-count="2">
+      <button onClick="{{ e.onClick }}" style="min-height:56px;padding:0 16px;border-radius:12px;border:2px solid {{ e.border }};background:{{ e.bg }};display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left">
+        <span style="display:flex;align-items:center;gap:12px">
+          <span style="width:22px;height:22px;border-radius:6px;border:2px solid {{ e.boxBorder }};background:{{ e.boxBg }};display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700">{{ e.tick }}</span>
+          <span style="font-size:15px;font-weight:700">{{ e.label }}</span>
+        </span>
+        <span style="font-size:15px;font-weight:700">{{ e.price }}</span>
+      </button>
+    </sc-for>
+  </div>
+  <label style="display:flex;flex-direction:column;gap:6px">
+    <span style="font-size:14px;font-weight:700">Estimator notes</span>
+    <input value="{{ notes }}" onChange="{{ setNotes }}" placeholder="Trees over rear roof, gate access on left" style="height:52px;border:1px solid #d8d8d3;border-radius:12px;padding:0 14px;font-size:16px;background:#fff">
+  </label>
+</div>
+</sc-if>
+
+<!-- STEP 4 PRICE -->
+<sc-if value="{{ isPrice }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Price" style="width:100%;max-width:760px;margin:0 auto;padding:8px 20px 120px;display:flex;flex-direction:column;gap:16px">
+  <h1 style="margin:0;font-family:Outfit,sans-serif;font-weight:600;font-size:24px;letter-spacing:-0.01em">Quote {{ quoteNumber }}</h1>
+  <div style="background:#1a1a18;color:#fff;border-radius:16px;padding:18px 20px;display:flex;justify-content:space-between;align-items:flex-end">
+    <div>
+      <div style="font-size:13px;color:#b8b8b2">Total inc. GST</div>
+      <div style="font-size:32px;font-weight:800;line-height:1.1;margin-top:4px;letter-spacing:-0.01em">{{ total }}</div>
+    </div>
+    <div style="text-align:right;font-size:13px;color:#b8b8b2;line-height:1.5">Valid {{ validityDays }} days<br>Expires {{ expiry }}</div>
+  </div>
+  <div style="background:#fff;border:1px solid #e4e4e0;border-radius:14px;overflow:hidden">
+    <sc-for list="{{ lineItems }}" as="li" hint-placeholder-count="4">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:12px 16px;border-bottom:1px solid #eeeeea">
+        <div>
+          <div style="font-size:15px;font-weight:700">{{ li.label }}</div>
+          <div style="font-size:13px;color:#6b6b66;margin-top:2px">{{ li.detail }}</div>
+        </div>
+        <div style="font-size:16px;font-weight:700;white-space:nowrap">{{ li.amount }}</div>
+      </div>
+    </sc-for>
+    <sc-for list="{{ adjustments }}" as="adj" hint-placeholder-count="2">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid #eeeeea;font-size:14px">
+        <div style="color:#6b6b66">{{ adj.label }}</div>
+        <div style="font-weight:700;white-space:nowrap">{{ adj.amount }}</div>
+      </div>
+    </sc-for>
+    <div style="display:flex;justify-content:space-between;padding:10px 16px;font-size:14px;color:#6b6b66;border-bottom:1px solid #eeeeea"><span>Subtotal</span><span style="font-weight:700;color:#1a1a18">{{ subtotal }}</span></div>
+    <div style="display:flex;justify-content:space-between;padding:10px 16px;font-size:14px;color:#6b6b66"><span>GST {{ gstPct }}%</span><span style="font-weight:700;color:#1a1a18">{{ gst }}</span></div>
+  </div>
+  <div style="background:#fff;border:1px solid #e4e4e0;border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px">
+    <div>
+      <div style="font-size:15px;font-weight:700">Manual override</div>
+      <div style="font-size:13px;color:#6b6b66;margin-top:2px">Replaces calculated subtotal. Logged in audit trail.</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:4px">
+      <span style="color:#6b6b66">$</span>
+      <input type="number" inputMode="decimal" value="{{ overrideVal }}" onChange="{{ setOverride }}" placeholder="—" style="width:96px;height:44px;border:1px solid #d8d8d3;border-radius:10px;padding:0 10px;font-size:16px;font-weight:700;text-align:right;background:#fafaf8">
+    </div>
+  </div>
+  <div style="font-size:13px;color:#6b6b66;line-height:1.55;padding:0 2px">Measurements and pricing are estimated using aerial imagery and information available at the time of quotation. The final price and scope may be adjusted where actual site conditions, accessibility, roof pitch, surface condition, property changes or other factors materially differ from the remote assessment.</div>
+</div>
+</sc-if>
+
+<!-- STEP 5 SEND -->
+<sc-if value="{{ isSend }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Send" style="width:100%;max-width:760px;margin:0 auto;padding:8px 20px 120px;display:flex;flex-direction:column;gap:18px">
+  <sc-if value="{{ notSent }}" hint-placeholder-val="{{ true }}">
+    <h1 style="margin:0;font-family:Outfit,sans-serif;font-weight:600;font-size:24px;letter-spacing:-0.01em">Send to {{ firstName }}</h1>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:14px;font-weight:700">Deliver via</span>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <sc-for list="{{ channels }}" as="c" hint-placeholder-count="2">
+          <button onClick="{{ c.onClick }}" style="min-height:64px;padding:10px 14px;border-radius:12px;border:2px solid {{ c.border }};background:{{ c.bg }};display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left">
+            <span style="font-size:15px;font-weight:700">{{ c.label }}</span>
+            <span style="font-size:13px;color:#6b6b66;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%">{{ c.to }}</span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:14px;font-weight:700">Quote preview</span>
+      <div style="background:#fff;border:1px solid #e4e4e0;border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font-family:Outfit,sans-serif;font-weight:700;font-size:17px">Rinse & Restore</div>
+            <div style="font-size:12px;color:#6b6b66">ABN 51 824 753 556</div>
+          </div>
+          <div style="text-align:right;font-size:12px;color:#6b6b66;line-height:1.5">{{ quoteNumber }}<br>{{ today }}</div>
+        </div>
+        <div style="height:1px;background:#eeeeea"></div>
+        <div style="font-size:14px;line-height:1.5"><strong>{{ cust.name }}</strong><br>{{ cust.address }}</div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:14px">
+          <sc-for list="{{ lineItems }}" as="li" hint-placeholder-count="2">
+            <div style="display:flex;justify-content:space-between;gap:12px"><span>{{ li.label }} <span style="color:#6b6b66">· {{ li.detail }}</span></span><span style="font-weight:700;white-space:nowrap">{{ li.amount }}</span></div>
+          </sc-for>
+        </div>
+        <div style="height:1px;background:#eeeeea"></div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:14px;color:#6b6b66">Total inc. GST</span><span style="font-size:20px;font-weight:700">{{ total }}</span></div>
+        <div style="font-size:12px;color:#6b6b66;line-height:1.5">Valid until {{ expiry }}. Measurements are estimated from aerial imagery and are subject to site conditions.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+          <div style="height:40px;border-radius:8px;background:oklch(0.55 0.15 150);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">Accept quote</div>
+          <div style="height:40px;border-radius:8px;border:1px solid #d8d8d3;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700">Ask a question</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ sent }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;padding:48px 12px 24px">
+      <div style="width:72px;height:72px;border-radius:50%;background:oklch(0.95 0.04 150);display:flex;align-items:center;justify-content:center;color:oklch(0.45 0.13 150);font-size:34px;font-weight:700">✓</div>
+      <h1 style="margin:0;font-family:Outfit,sans-serif;font-weight:600;font-size:24px">Quote sent</h1>
+      <div style="font-size:15px;color:#6b6b66;line-height:1.5">{{ quoteNumber }} for {{ total }} was sent to {{ sentTo }}.<br>Status is now <strong style="color:#1a1a18">Sent</strong>. You will be notified when {{ firstName }} opens or accepts it.</div>
+    </div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- FLOW FOOTER -->
+<sc-if value="{{ inFlow }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;bottom:0;left:0;right:0;background:rgba(246,246,244,0.92);backdrop-filter:blur(8px);border-top:1px solid #e4e4e0;padding:12px max(20px,calc(50% - 380px)) 20px;display:flex;flex-direction:column;gap:6px">
+  <sc-if value="{{ showRunning }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;justify-content:space-between;font-size:14px;color:#6b6b66;padding:0 2px"><span>Running estimate inc. GST</span><span style="font-weight:700;color:#1a1a18;font-size:16px">{{ total }}</span></div>
+  </sc-if>
+  <button onClick="{{ next }}" disabled="{{ nextDisabled }}" style="height:52px;border:0;border-radius:14px;background:{{ nextBg }};color:#fff;font-size:16px;font-weight:700">{{ nextLabel }}</button>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    screen: 'quotes', filter: 'All', sent: false, channel: 'email',
+    cust: { name: '', mobile: '', email: '', address: '', located: false, lat: '', lng: '' },
+    areas: { roof: 186, driveway: 62, paths: 0 }, layer: 'roof',
+    roofPoly: [[70,90],[250,90],[250,180],[310,180],[310,300],[70,300]],
+    drivePoly: [[318,190],[372,190],[378,395],[314,395]],
+    assess: { material: 'Tile', pitch: 22.5, storeys: 1, condition: 'Moderate', access: 'Easy', solar: false, gutters: false },
+    notes: '', override: '',
+    rates: { roofTile: 6.5, roofMetal: 5.5, driveway: 4.2, paths: 4.2, minCharge: 250, storey: 15, steep: 20, heavy: 25, access: 150, solar: 180, gutters: 220, gst: 10, validity: 30 },
+    quotes: [
+      { number: 'Q-2026-0147', customer: 'Daniel Okafor', address: '12 Banksia Cres, Glenmore Park NSW', services: 'Roof · Driveway', total: 1842, status: 'Sent' },
+      { number: 'Q-2026-0146', customer: 'Priya Raman', address: '48 Wattle St, Castle Hill NSW', services: 'Roof · Solar', total: 2310, status: 'Accepted' },
+      { number: 'Q-2026-0145', customer: 'Tom & Ellie Brandt', address: '7 Coral Tree Dr, Kellyville NSW', services: 'Driveway · Paths', total: 640, status: 'Draft' },
+      { number: 'Q-2026-0144', customer: 'Margaret Lau', address: '133 Old Northern Rd, Baulkham Hills NSW', services: 'Roof · Gutters', total: 1975, status: 'Rejected' },
+      { number: 'Q-2026-0139', customer: 'Sam Nguyen', address: '5/21 Windsor Rd, Northmead NSW', services: 'House wash', total: 890, status: 'Expired' },
+    ],
+  };
+  ACCENT = 'oklch(0.55 0.15 150)'; TINT = 'oklch(0.95 0.03 150)';
+  money(n) { return '$' + Number(n).toLocaleString('en-AU', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  set(path, val) { this.setState(s => { const o = JSON.parse(JSON.stringify(s)); let t = o; const p = path.split('.'); for (let i = 0; i < p.length - 1; i++) t = t[p[i]]; t[p[p.length - 1]] = val; return o; }); }
+  opt(list, cur, path, extra) { return list.map(o => ({ ...o, border: o.value === cur ? this.ACCENT : '#e4e4e0', bg: o.value === cur ? this.TINT : '#fff', onClick: () => this.set(path, o.value) })); }
+  calc() {
+    const { areas, assess, rates, override } = this.state;
+    const items = [], adjustments = [];
+    const rad = assess.pitch * Math.PI / 180, factor = 1 / Math.cos(rad);
+    const roofAdj = areas.roof * factor;
+    const roofRate = assess.material === 'Tile' ? rates.roofTile : rates.roofMetal;
+    if (areas.roof > 0) items.push({ label: `Roof wash · ${assess.material}`, detail: `${areas.roof} m² footprint × ${factor.toFixed(2)} pitch = ${roofAdj.toFixed(0)} m² @ $${roofRate}/m²`, amount: roofAdj * roofRate });
+    if (areas.driveway > 0) items.push({ label: 'Driveway clean', detail: `${areas.driveway} m² @ $${rates.driveway}/m²`, amount: areas.driveway * rates.driveway });
+    if (areas.paths > 0) items.push({ label: 'Paths & patio', detail: `${areas.paths} m² @ $${rates.paths}/m²`, amount: areas.paths * rates.paths });
+    const roofAmt = items[0] && areas.roof > 0 ? items[0].amount : 0;
+    if (assess.storeys === 2) adjustments.push({ label: `Two-storey surcharge +${rates.storey}%`, amount: roofAmt * rates.storey / 100 });
+    if (assess.pitch >= 30) adjustments.push({ label: `Steep roof surcharge +${rates.steep}%`, amount: roofAmt * rates.steep / 100 });
+    if (assess.condition === 'Heavy') adjustments.push({ label: `Heavy moss / lichen +${rates.heavy}%`, amount: roofAmt * rates.heavy / 100 });
+    if (assess.access === 'Difficult') adjustments.push({ label: 'Difficult access', amount: rates.access });
+    if (assess.solar) items.push({ label: 'Solar panel clean', detail: 'Fixed price', amount: rates.solar });
+    if (assess.gutters) items.push({ label: 'Gutter clean', detail: 'Fixed price', amount: rates.gutters });
+    let subtotal = items.reduce((a, b) => a + b.amount, 0) + adjustments.reduce((a, b) => a + b.amount, 0);
+    if (subtotal < rates.minCharge && subtotal > 0) { adjustments.push({ label: 'Minimum call-out applied', amount: rates.minCharge - subtotal }); subtotal = rates.minCharge; }
+    if (override !== '' && !isNaN(Number(override))) subtotal = Number(override);
+    const gst = subtotal * rates.gst / 100;
+    return { items, adjustments, subtotal, gst, total: subtotal + gst };
+  }
+  renderVals() {
+    const s = this.state, A = this.ACCENT, T = this.TINT;
+    const flow = ['customer', 'measure', 'assess', 'price', 'send'];
+    const stepIdx = flow.indexOf(s.screen);
+    const inFlow = stepIdx >= 0;
+    const c = this.calc();
+    const go = sc => this.setState({ screen: sc });
+    const pill = { Draft: ['#eeeeea', '#3a3a36'], Sent: ['oklch(0.93 0.05 250)', 'oklch(0.4 0.12 250)'], Accepted: [T, 'oklch(0.4 0.13 150)'], Rejected: ['oklch(0.93 0.05 25)', 'oklch(0.45 0.16 25)'], Expired: ['#eeeeea', '#8a8a84'] };
+    const visibleQuotes = s.quotes.filter(q => s.filter === 'All' || q.status === s.filter).map(q => ({ ...q, total: this.money(q.total), pillBg: pill[q.status][0], pillColor: pill[q.status][1] }));
+    const filters = ['All', 'Draft', 'Sent', 'Accepted'].map(f => ({ label: f, border: s.filter === f ? '#1a1a18' : '#e4e4e0', bg: s.filter === f ? '#1a1a18' : '#fff', color: s.filter === f ? '#fff' : '#1a1a18', onClick: () => this.setState({ filter: f }) }));
+    const sugg = ['22 Jacaranda Ave, Baulkham Hills NSW 2153', '22 Jacaranda Pl, Kellyville NSW 2155', '22A Jacaranda Rd, Cherrybrook NSW 2126'];
+    const suggestions = sugg.map(t => ({ text: t, onClick: () => this.set('cust', { ...s.cust, address: t, located: true, lat: '-33.7581', lng: '150.9912' }) }));
+    const showSuggestions = s.cust.address.length > 1 && !s.cust.located;
+    const layerDefs = [['roof', 'Roof', 'oklch(0.6 0.18 40)'], ['driveway', 'Driveway', 'oklch(0.55 0.15 250)'], ['paths', 'Paths', 'oklch(0.6 0.15 300)']];
+    const layers = layerDefs.map(([k, label, sw]) => ({ label, swatch: sw, border: s.layer === k ? '#1a1a18' : '#e4e4e0', bg: s.layer === k ? '#fff' : 'transparent', onClick: () => this.setState({ layer: k }) }));
+    const activePoly = s.layer === 'roof' ? s.roofPoly : s.layer === 'driveway' ? s.drivePoly : [];
+    const handles = activePoly.map(([x, y]) => ({ x, y, stroke: s.layer === 'roof' ? 'oklch(0.6 0.18 40)' : 'oklch(0.55 0.15 250)' }));
+    const areaRows = [['roof', 'Roof footprint', '1 polygon · horizontal'], ['driveway', 'Driveway', '1 polygon'], ['paths', 'Paths & patio', 'Optional']].map(([k, label, note]) => ({ label, note, value: s.areas[k], onChange: e => this.set('areas.' + k, Number(e.target.value) || 0) }));
+    const a = s.assess;
+    const assessGroups = [
+      { title: 'Roof material', hint: '', cols: '1fr 1fr', options: this.opt([{ label: 'Tile', sub: `$${s.rates.roofTile}/m²`, value: 'Tile' }, { label: 'Metal / Colorbond', sub: `$${s.rates.roofMetal}/m²`, value: 'Metal' }], a.material, 'assess.material') },
+      { title: 'Roof pitch', hint: `×${(1 / Math.cos(a.pitch * Math.PI / 180)).toFixed(2)} surface factor`, cols: '1fr 1fr 1fr', options: this.opt([{ label: 'Low', sub: '~15°', value: 15 }, { label: 'Standard', sub: '~22.5°', value: 22.5 }, { label: 'Steep', sub: '30°+', value: 30 }], a.pitch, 'assess.pitch') },
+      { title: 'Storeys', hint: a.storeys === 2 ? `+${s.rates.storey}% on roof` : '', cols: '1fr 1fr', options: this.opt([{ label: 'Single', sub: '', value: 1 }, { label: 'Two storey', sub: `+${s.rates.storey}%`, value: 2 }], a.storeys, 'assess.storeys') },
+      { title: 'Roof condition', hint: '', cols: '1fr 1fr 1fr', options: this.opt([{ label: 'Light', sub: 'Dust, dirt', value: 'Light' }, { label: 'Moderate', sub: 'Some moss', value: 'Moderate' }, { label: 'Heavy', sub: `Moss +${s.rates.heavy}%`, value: 'Heavy' }], a.condition, 'assess.condition') },
+      { title: 'Access', hint: '', cols: '1fr 1fr', options: this.opt([{ label: 'Easy', sub: 'Clear, level', value: 'Easy' }, { label: 'Difficult', sub: `+$${s.rates.access}`, value: 'Difficult' }], a.access, 'assess.access') },
+    ];
+    const extraRows = [['solar', 'Solar panel clean', s.rates.solar], ['gutters', 'Gutter clean', s.rates.gutters]].map(([k, label, p]) => ({ label, price: this.money(p), border: a[k] ? A : '#e4e4e0', bg: a[k] ? T : '#fff', boxBorder: a[k] ? A : '#c8c8c2', boxBg: a[k] ? A : '#fff', tick: a[k] ? '✓' : '', onClick: () => this.set('assess.' + k, !a[k]) }));
+    const channels = [{ k: 'email', label: 'Email', to: s.cust.email || 'No email entered' }, { k: 'sms', label: 'SMS link', to: s.cust.mobile || 'No mobile entered' }].map(ch => ({ ...ch, border: s.channel === ch.k ? A : '#e4e4e0', bg: s.channel === ch.k ? T : '#fff', onClick: () => this.setState({ channel: ch.k }) }));
+    const rows = (defs) => defs.map(([k, label, prefix, suffix]) => ({ label, prefix, suffix, value: s.rates[k], onChange: e => this.set('rates.' + k, Number(e.target.value) || 0) }));
+    const rateGroups = [
+      { title: 'Rates per m²', rows: rows([['roofTile', 'Roof · tile', '$', '/m²'], ['roofMetal', 'Roof · metal / Colorbond', '$', '/m²'], ['driveway', 'Driveway', '$', '/m²'], ['paths', 'Paths & patio', '$', '/m²']]) },
+      { title: 'Surcharges', rows: rows([['storey', 'Two storey', '+', '%'], ['steep', 'Steep roof (30°+)', '+', '%'], ['heavy', 'Heavy moss / lichen', '+', '%'], ['access', 'Difficult access', '$', '']]) },
+      { title: 'Fixed extras & rules', rows: rows([['solar', 'Solar panel clean', '$', ''], ['gutters', 'Gutter clean', '$', ''], ['minCharge', 'Minimum call-out', '$', ''], ['gst', 'GST', '', '%'], ['validity', 'Quote validity', '', 'days']]) },
+    ];
+    const nextLabels = ['Locate & measure', 'Assess property', 'Calculate price', 'Review & send', s.sent ? 'Back to quotes' : (s.channel === 'email' ? 'Send by email' : 'Send SMS link')];
+    const nextDisabled = s.screen === 'customer' && !(s.cust.name && s.cust.located);
+    const expiryDate = new Date(2026, 8, 4 + s.rates.validity);
+    const fmt = d => d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+    const number = 'Q-2026-0148';
+    const next = () => {
+      if (s.screen === 'send') {
+        if (s.sent) { this.setState({ screen: 'quotes', sent: false, quotes: [{ number, customer: s.cust.name, address: s.cust.address, services: 'Roof · Driveway', total: c.total, status: 'Sent' }, ...s.quotes.filter(q => q.number !== number)] }); }
+        else this.setState({ sent: true });
+      } else go(flow[stepIdx + 1]);
+    };
+    const back = () => stepIdx === 0 ? go('quotes') : (s.screen === 'send' && s.sent ? this.setState({ sent: false }) : go(flow[stepIdx - 1]));
+    return {
+      isQuotes: s.screen === 'quotes', isSettings: s.screen === 'settings', showNav: !inFlow, inFlow,
+      isCustomer: s.screen === 'customer', isMeasure: s.screen === 'measure', isAssess: s.screen === 'assess', isPrice: s.screen === 'price', isSend: s.screen === 'send',
+      navQuotesColor: s.screen === 'quotes' ? A : '#6b6b66', navSettingsColor: s.screen === 'settings' ? A : '#6b6b66',
+      goQuotes: () => this.setState({ screen: 'quotes', sent: false }), goSettings: () => go('settings'),
+      startNew: () => this.setState({ screen: 'customer', sent: false, override: '', cust: { name: '', mobile: '', email: '', address: '', located: false, lat: '', lng: '' } }),
+      statSent: s.quotes.filter(q => q.status !== 'Draft').length, statAccepted: s.quotes.filter(q => q.status === 'Accepted').length,
+      statPipeline: '$' + Math.round(s.quotes.filter(q => q.status === 'Sent').reduce((x, q) => x + q.total, 0)).toLocaleString('en-AU'),
+      filters, visibleQuotes, rateGroups,
+      stepNum: stepIdx + 1, steps: flow.map((_, i) => ({ bg: i <= stepIdx ? A : '#dcdcd7' })),
+      back, next, nextLabel: nextLabels[stepIdx] || '', nextDisabled, nextBg: nextDisabled ? '#b8b8b2' : (s.screen === 'send' && !s.sent ? A : '#1a1a18'),
+      showRunning: s.screen === 'measure' || s.screen === 'assess',
+      cust: s.cust, setName: e => this.set('cust.name', e.target.value), setMobile: e => this.set('cust.mobile', e.target.value), setEmail: e => this.set('cust.email', e.target.value),
+      setAddress: e => this.set('cust', { ...s.cust, address: e.target.value, located: false }), showSuggestions, suggestions, addressLocated: s.cust.located,
+      roofPts: s.roofPoly.map(p => p.join(',')).join(' '), drivePts: s.drivePoly.map(p => p.join(',')).join(' '),
+      roofStroke: s.layer === 'roof' ? 3 : 2, driveStroke: s.layer === 'driveway' ? 3 : 2, handles, layers, areaRows,
+      addVertex: () => { if (s.layer !== 'roof' && s.layer !== 'driveway') return; const key = s.layer === 'roof' ? 'roofPoly' : 'drivePoly'; const poly = s[key]; const [x1, y1] = poly[poly.length - 1], [x0, y0] = poly[0]; this.set(key, [...poly, [Math.round((x0 + x1) / 2), Math.round((y0 + y1) / 2)]]); },
+      undoVertex: () => { const key = s.layer === 'roof' ? 'roofPoly' : 'drivePoly'; if (s[key].length > 3) this.set(key, s[key].slice(0, -1)); },
+      assessGroups, extraRows, notes: s.notes, setNotes: e => this.set('notes', e.target.value),
+      quoteNumber: number, total: this.money(c.total), subtotal: this.money(c.subtotal), gst: this.money(c.gst), gstPct: s.rates.gst, validityDays: s.rates.validity, expiry: fmt(expiryDate), today: fmt(new Date(2026, 8, 4)),
+      lineItems: c.items.map(i => ({ ...i, amount: this.money(i.amount) })), adjustments: c.adjustments.map(i => ({ ...i, amount: this.money(i.amount) })),
+      overrideVal: s.override, setOverride: e => this.set('override', e.target.value),
+      channels, notSent: !s.sent, sent: s.sent, firstName: (s.cust.name || 'customer').split(' ')[0], sentTo: s.channel === 'email' ? (s.cust.email || 'the customer') : (s.cust.mobile || 'the customer'),
+    };
+  }
+}
+</script>
+</body>
+</html>
